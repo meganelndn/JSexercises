@@ -13,7 +13,6 @@ console.log(name.substring(0, 2) + newLetter + name.substring(3, ))
 //OR
 console.log(name.substring(0, 2) + name.substring(2, 3).toUpperCase() + name.substring(3, ))
 
-
 //toLowerCase
 console.log(name.substring(0, 2).toUpperCase() + name.substring(2, 4).toLowerCase() + name.substring(4, ).toUpperCase())
 
