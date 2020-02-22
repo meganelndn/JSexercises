@@ -16,8 +16,29 @@ function start() {
     console.log("ready");
 
     // TODO: Add event-listeners to filter and sort buttons
+    document.querySelector("[data-filter='cat']").addEventListener("click", filterCats);
+    document.querySelector("[data-filter='dog']").addEventListener("click", filterDogs);
+    document.querySelector("[data-filter='*']").addEventListener("click", displayAnimal);
+
     loadJSON();
-    filterList();
+}
+
+function filterCats() {
+    const onlyCats = allAnimals.filter(isCat);
+    displayList(onlyCats);
+}
+
+function isCat(animal) {
+    return animal.type === "cat";
+}
+
+function filterDogs() {
+    const onlyDogs = allAnimals.filter(isDog);
+    displayList(onlyDogs);
+}
+
+function isDog(animal) {
+    return animal.type === "dog";
 }
 
 function loadJSON() {
@@ -48,22 +69,12 @@ function preapareObject(jsonObject) {
     return animal;
 }
 
-// Add function to filter list
-function filterList(animal) {
-    console.log(animal)
-}
-
 function displayList(animals) {
     // clear the list
     document.querySelector("#list tbody").innerHTML = "";
 
     // build a new list
     animals.forEach(displayAnimal);
-    console.log(allAnimals);
-    animals.forEach(displayCats);
-    animals.forEach(displayDogs);
-
-    //return animals;
 }
 
 function displayAnimal(animal) {
