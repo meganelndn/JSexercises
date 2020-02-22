@@ -79,15 +79,17 @@ function preapareObject(jsonObject) {
     return animal;
 }
 
+/*----------DISPLAY ANIMALS && WHEN BTN CLICKED, CLEAR DEFAULT LIST----------*/
+
 function displayList(animals) {
     // clear the list
     document.querySelector("#list tbody").innerHTML = "";
 
     // build a new list
     animals.forEach(displayAnimal);
-
-    //return animals;
 }
+
+/*----------------CLONE TEMPLATE AND POPULATE ITS PROPERTIES---------------*/
 
 function displayAnimal(animal) {
     // create clone
