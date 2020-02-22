@@ -1,6 +1,5 @@
 "use strict";
-
-window.addEventListener("DOMContentLoaded", start);
+window.addEventListener("DOMContentLoaded", init);
 
 let allAnimals = [];
 
@@ -12,17 +11,20 @@ const Animal = {
     age: 0
 };
 
-function start() {
+function init() {
     console.log("ready");
 
     // TODO: Add event-listeners to filter and sort buttons
     document.querySelector("[data-filter='cat']").addEventListener("click", filterCats);
     document.querySelector("[data-filter='dog']").addEventListener("click", filterDogs);
-    document.querySelector("[data-filter='*']").addEventListener("click", displayAnimal);
+    document.querySelector("[data-filter='*']").addEventListener("click", filterAll);
 
     loadJSON();
 }
 
+/*-------------------.FILTER FUNCTIONS-----------------*/
+
+// When "Only Cats" btn clicked, show only cats
 function filterCats() {
     const onlyCats = allAnimals.filter(isCat);
     displayList(onlyCats);
@@ -32,6 +34,7 @@ function isCat(animal) {
     return animal.type === "cat";
 }
 
+// When "Only Dogs" btn clicked, show only cats
 function filterDogs() {
     const onlyDogs = allAnimals.filter(isDog);
     displayList(onlyDogs);
@@ -40,6 +43,13 @@ function filterDogs() {
 function isDog(animal) {
     return animal.type === "dog";
 }
+
+// When "all" btn clicked, show List
+function filterAll() {
+    displayList(allAnimals);
+}
+
+/*-----------------------LOAD JSON DATA--------------------*/
 
 function loadJSON() {
     fetch("animals.json")
@@ -75,6 +85,8 @@ function displayList(animals) {
 
     // build a new list
     animals.forEach(displayAnimal);
+
+    //return animals;
 }
 
 function displayAnimal(animal) {
