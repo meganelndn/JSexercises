@@ -2,14 +2,18 @@
 window.addEventListener("DOMContentLoaded", init);
 
 let allAnimals = [];
+let currentAnimals = [];
 
 // The prototype for all animals: 
 const Animal = {
     name: "",
     desc: "-unknown animal-",
     type: "",
-    age: 0
+    age: 0,
 };
+
+/* const myHeading = document.querySelector("#sorting > th");
+const myButtons = document.querySelector(".filter"); */
 
 function init() {
     console.log("ready");
@@ -19,10 +23,15 @@ function init() {
     document.querySelector("[data-filter='dog']").addEventListener("click", filterDogs);
     document.querySelector("[data-filter='*']").addEventListener("click", filterAll);
 
+    document.querySelector("[data-sort='name']").addEventListener("click", sortName);
+    //document.querySelector("[data-sort='type']").addEventListener("click", sortType);
+    //document.querySelector("[data-sort='desc']").addEventListener("click", sortDesc);
+    document.querySelector("[data-sort='age']").addEventListener("click", sortAge);
+
     loadJSON();
 }
 
-/*-------------------.FILTER FUNCTIONS-----------------*/
+/*-------------------FILTERING-----------------*/
 
 // When "Only Cats" btn clicked, show only cats
 function filterCats() {
@@ -49,8 +58,82 @@ function filterAll() {
     displayList(allAnimals);
 }
 
-/*-----------------------LOAD JSON DATA--------------------*/
+/*---------------------SORTING-------------------*/
+function sortName() {
+    if (event.target.dataset.sortDirection === "asc") {
+        event.target.dataset.sortDirection = "desc";
 
+        nameAsc();
+    } else {
+        nameDesc();
+
+        event.target.dataset.sortDirection = "asc";
+    }
+}
+
+// ascending order
+function nameDesc() {
+    function compareName(a, b) {
+        if (a.name < b.name) {
+            return -1;
+        } else if (a.name > b.name) {
+            return 1;
+        }
+    }
+    allAnimals.sort(compareName);
+    displayList(allAnimals);
+}
+
+// descending order
+function nameAsc() {
+    function compareName(a, b) {
+        if (a.name < b.name) {
+            return 1;
+        } else if (a.name > b.name) {
+            return -1;
+        }
+    }
+    allAnimals.sort(compareName);
+    displayList(allAnimals);
+}
+
+function sortAge() {
+    if (event.target.dataset.sortDirection === "asc") {
+        event.target.dataset.sortDirection = "desc"
+        ageAsc();
+    } else {
+        ageDesc();
+        event.target.dataset.sortDirection = "asc"
+    }
+}
+
+// ascending order
+function ageAsc() {
+    function compareAge(a, b) {
+        if (a.age < b.age) {
+            return 1;
+        } else if (a.age > b.age) {
+            return -1;
+        }
+    }
+    allAnimals.sort(compareAge);
+    displayList(allAnimals);
+}
+
+// descending order
+function ageDesc() {
+    function compareAge(a, b) {
+        if (a.age < b.age) {
+            return -1;
+        } else if (a.age > b.age) {
+            return 1;
+        }
+    }
+    allAnimals.sort(compareAge);
+    displayList(allAnimals);
+}
+
+/*-----------------------LOAD JSON DATA--------------------*/
 function loadJSON() {
     fetch("animals.json")
         .then(response => response.json())
@@ -62,6 +145,8 @@ function loadJSON() {
 
 function prepareObjects(jsonData) {
     allAnimals = jsonData.map(preapareObject);
+
+    currentAnimals = allAnimals.filter(allAnimals => true);
 
     // TODO: This might not be the function we want to call first
     displayList(allAnimals);
@@ -96,6 +181,7 @@ function displayAnimal(animal) {
     const clone = document.querySelector("template#animal").content.cloneNode(true);
 
     // set clone data
+
     clone.querySelector("[data-field=name]").textContent = animal.name;
     clone.querySelector("[data-field=desc]").textContent = animal.desc;
     clone.querySelector("[data-field=type]").textContent = animal.type;
