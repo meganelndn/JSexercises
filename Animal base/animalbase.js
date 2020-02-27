@@ -4,12 +4,20 @@ window.addEventListener("DOMContentLoaded", init);
 let allAnimals = [];
 let currentAnimals = [];
 
+const settings = {
+    filter: null,
+    sortBy: null,
+    sortDir: "asc"
+}
+
 // The prototype for all animals: 
 const Animal = {
     name: "",
     desc: "-unknown animal-",
     type: "",
     age: 0,
+    star: false,
+    winner: false
 };
 
 /* const myHeading = document.querySelector("#sorting > th");
@@ -24,9 +32,13 @@ function init() {
     document.querySelector("[data-filter='*']").addEventListener("click", filterAll);
 
     document.querySelector("[data-sort='name']").addEventListener("click", sortName);
-    //document.querySelector("[data-sort='type']").addEventListener("click", sortType);
-    //document.querySelector("[data-sort='desc']").addEventListener("click", sortDesc);
     document.querySelector("[data-sort='age']").addEventListener("click", sortAge);
+
+    document
+        .querySelector("[data-action='sort'][data-sort='winner']")
+        .addEventListener("click", selected => {
+            sortAnimals(selected.originalTarget.dataset);
+        });
 
     loadJSON();
 }
@@ -164,6 +176,12 @@ function preapareObject(jsonObject) {
     return animal;
 }
 
+function buildList() {
+    const currentList = allAnimals; // FUTURE: Filter and sort currentList before displaying
+
+    displayList(currentList);
+}
+
 /*----------DISPLAY ANIMALS && WHEN BTN CLICKED, CLEAR DEFAULT LIST----------*/
 
 function displayList(animals) {
@@ -187,6 +205,140 @@ function displayAnimal(animal) {
     clone.querySelector("[data-field=type]").textContent = animal.type;
     clone.querySelector("[data-field=age]").textContent = animal.age;
 
+    // TODO: Show star ⭐ or ☆
+    if (animal.star === true) {
+        clone.querySelector("[data-field=star]").textContent = "⭐";
+    } else {
+        clone.querySelector("[data-field=star]").textContent = "☆";
+    }
+    clone.querySelector("[data-field=star]").addEventListener("click", function () {
+        showStar(animal);
+    })
+
+    // TODO: Show winner trophy
+    clone.querySelector("[data-field=winner").dataset.winner = animal.winner;
+    clone
+        .querySelector("[data-field=winner]")
+        .addEventListener("click", function () {
+            toggleWinner(animal);
+        });
+
     // append clone to list
     document.querySelector("#list tbody").appendChild(clone);
+}
+
+function showStar(animal) {
+    if (animal.star) {
+        animal.star = false;
+    } else {
+        animal.star = true;
+    }
+
+    buildList();
+}
+
+function toggleWinner(thisAnimal) {
+    const totalWinners = allAnimals.filter(animal =>
+        animal.winner === "true" ? true : false
+    );
+    const sameTypeWinners = totalWinners.filter(animal =>
+        animal.type === thisAnimal.type ? true : false
+    );
+    console.log(sameTypeWinners.length);
+
+    if (thisAnimal.winner === "true") {
+        thisAnimal.winner = "false";
+        displayList(allAnimals);
+    } else if (totalWinners.some(winner => winner.type === thisAnimal.type)) {
+        console.log("two of same kind");
+        callAlertSameType(sameTypeWinners[0], thisAnimal);
+    } else if (totalWinners.length === 2) {
+        console.log("more than two");
+        callAlertMoreThan2(totalWinners, thisAnimal);
+    } else {
+        thisAnimal.winner = "true";
+        displayList(allAnimals);
+    }
+}
+
+function callAlertMoreThan2(winners, newWinner) {
+    document.querySelector("#onlytwowinners").classList.add("show");
+
+    for (let i = 0; i < 2; i++) {
+        document.querySelector(
+            `.animal${1 + i}`
+        ).textContent = `${winners[i].name}, the ${winners[i].type}`;
+    }
+    initRemoveBtns(winners, newWinner);
+}
+
+function callAlertSameType(sameType, newWinner) {
+    document.querySelector("#onlyonekind").classList.add("show");
+    document.querySelector(
+        "#onlyonekind .animal1"
+    ).textContent = `${sameType.name}, the ${sameType.type}`;
+    document
+        .querySelector("#onlyonekind [data-action=remove1]")
+        .addEventListener("click", removeCurrentWinner);
+    document
+        .querySelector("#onlyonekind .closebutton")
+        .addEventListener("click", keepCurrentWinner);
+
+    function removeCurrentWinner() {
+        sameType.winner = "false";
+        newWinner.winner = "true";
+        displayList(allAnimals);
+        document.querySelector("#onlyonekind").classList.remove("show");
+        document
+            .querySelector("#onlyonekind [data-action=remove1]")
+            .removeEventListener("click", removeCurrentWinner);
+        document
+            .querySelector("#onlyonekind .closebutton")
+            .removeEventListener("click", keepCurrentWinner);
+    }
+
+    function keepCurrentWinner() {
+        console.log("do nothing");
+        document.querySelector("#onlyonekind").classList.remove("show");
+        document
+            .querySelector("#onlyonekind [data-action=remove1]")
+            .removeEventListener("click", removeCurrentWinner);
+        document
+            .querySelector("#onlyonekind .closebutton")
+            .removeEventListener("click", keepCurrentWinner);
+    }
+}
+
+function initRemoveBtns(winners, newWinner) {
+    const removeBtnArray = [
+        document.querySelector(`[data-action=remove1`),
+        document.querySelector(`[data-action=remove2`)
+    ];
+    removeBtnArray[0].addEventListener("click", removeFirst);
+    removeBtnArray[1].addEventListener("click", removeSecond);
+
+    function removeFirst() {
+        winners[0].winner = "false";
+        document.querySelector("#onlytwowinners").classList.remove("show");
+        console.log(`remove ${winners[0].name}`);
+        newWinner.winner = "true";
+        displayList(allAnimals);
+        removeBtnArray[0].removeEventListener("click", removeFirst);
+        removeBtnArray[1].removeEventListener("click", removeSecond);
+    }
+
+    function removeSecond() {
+        winners[1].winner = "false";
+        document.querySelector("#onlytwowinners").classList.remove("show");
+        console.log(`remove ${winners[1].name}`);
+        newWinner.winner = "true";
+        displayList(allAnimals);
+        removeBtnArray[0].removeEventListener("click", removeFirst);
+        removeBtnArray[1].removeEventListener("click", removeSecond);
+    }
+    document.querySelector(".closebutton").addEventListener("click", () => {
+        document.querySelector("#onlytwowinners").classList.remove("show");
+        removeBtnArray[0].removeEventListener("click", removeFirst);
+        removeBtnArray[1].removeEventListener("click", removeSecond);
+    });
 }
